@@ -27,10 +27,48 @@ resource "aws_key_pair" "generated_key" {
 
 }
 
+resource "aws_security_group" "cloudgfx_instance" {
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 5900
+    to_port     = 5900
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = -1
+    to_port     = -1
+    protocol    = "icmp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+}
+
+# Used for both the user password and the vnc password
+resource "random_password" "fedora_password" {
+  length = 8
+}
+
 resource "aws_instance" "cloudgfx_instance" {
   # Fedora-Cloud-Base-38-1.6.x86_64-hvm-us-east-1-gp2-0 Community AMI
   ami           = "ami-01752495da7056fa9"
   instance_type = "g4ad.xlarge"
+
+  vpc_security_group_ids = [aws_security_group.cloudgfx_instance.id]
 
   root_block_device {
     volume_size = 50
@@ -52,6 +90,11 @@ resource "aws_instance" "cloudgfx_instance" {
   provisioner "file" {
     source      = "${path.root}/salt"
     destination = "/tmp/salt"
+  }
+
+  provisioner "file" {
+    content     = "${random_password.fedora_password.result}"
+    destination = "/tmp/password"
   }
 
   provisioner "remote-exec" {
