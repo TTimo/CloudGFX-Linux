@@ -12,10 +12,15 @@
     - target: /home/fedora/.config/systemd/user/x0vncserver.service
     - makedirs: True
 
-# FIXME: what? no lol
-/home/fedora/.vnc/password:
-  file.managed:
+/home/fedora/.vnc:
+  file.directory:
     - user: fedora
     - group: fedora
-    - makedirs: True
-    - source: file:///tmp/password
+
+/home/fedora/.vnc/password:
+  cmd.run:
+    - name: 'cat /tmp/password | vncpasswd -f > /home/fedora/.vnc/passwd'
+
+fix-vnc-permissions:
+  cmd.run:
+    - name: 'chown fedora:fedora /home/fedora/.vnc/passwd'
