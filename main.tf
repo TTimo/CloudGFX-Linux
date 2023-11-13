@@ -112,6 +112,6 @@ resource "aws_instance" "cloudgfx_instance" {
 }
 
 output "info" {
-  sensitive = false
+  sensitive = true
   value = "You can now VNC to ${aws_instance.cloudgfx_instance.public_ip} and login as fedora with password ${random_password.fedora_password.result}"
 }
