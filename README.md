@@ -12,7 +12,7 @@ Setup AWS credentials, install terraform etc.
 
 Wait for the operation to complete (roughly 15 minutes).
 
-- `terraform print info`
+- `terraform output info`
 
 ## VNC client recommendations:
 
